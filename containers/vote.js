@@ -1,4 +1,3 @@
-import axios from "axios"; // Axios requests
 import { web3p } from "containers"; // Web3
 import { createContainer } from "unstated-next"; // Unstated-next containerization
 
@@ -51,6 +50,7 @@ function useVote() {
   const signVote = async (msgParams) => {
     return new Promise((resolve, reject) => {
       // Sign message
+      console.log(["web3.currentProvider", web3.currentProvider]);
       web3.currentProvider.sendAsync(
         {
           method: "eth_signTypedData_v4",
@@ -77,8 +77,11 @@ function useVote() {
    */
   const voteFor = async (proposalId) => {
     // Generate and sign message
+    console.log("voteFor", proposalId)
     const msgParams = createVoteBySigMessage(proposalId, 1);
+    console.log({msgParams});
     const signedMsg = await signVote(msgParams);
+    console.log({signedMsg});
 
     // POST vote to server
     await castVote(proposalId, 1, signedMsg);
@@ -123,25 +126,35 @@ function useVote() {
     const v = "0x" + signedMsg.substring(130, 132);
 
     // Post to back-end
-    await axios
-      .post("/api/vote", {
-        address,
-        r,
-        s,
-        v,
-        proposalId,
-        support,
-      })
-      // If successful
-      .then(() => {
-        // Alert successful
-        alert("Success!");
-      })
-      // Else,
-      .catch((error) => {
-        // Alert error message
+    try {
+      let resp = await fetch("/api/vote", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            address,
+            r,
+            s,
+            v,
+            proposalId,
+            support,
+          })
+        });
+      let value = await resp.json();
+
+      // Alert successful
+      console.error("Success!");
+      alert("Success!");
+    } catch (error) {
+      // Alert error message
+      console.error("Error", error);
+      if (error.response.data.message) {
         alert("Error: " + error.response.data.message);
-      });
+      } else {
+        alert("Error: " + error.toString());
+      }
+    }
   };
 
   return {

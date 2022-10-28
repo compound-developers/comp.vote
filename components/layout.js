@@ -3,6 +3,8 @@ import Header from "components/header"; // Header component
 import styles from "styles/layout.module.scss"; // Component styles
 
 export default function Layout({ children }) {
+  const standalone = false;
+
   return (
     <div>
       {/* Meta Setup */}
@@ -72,9 +74,12 @@ export default function Layout({ children }) {
       </Head>
 
       {/* Header */}
-      <div>
-        <Header />
-      </div>
+      { standalone ? 
+        <div>
+          <Header />
+        </div>
+        : null
+      }
 
       {/* Page content */}
       <div className={styles.content}>{children}</div>

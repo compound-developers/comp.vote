@@ -306,6 +306,7 @@ const canVote = async (address, proposalId) => {
  */
 const vote = async (address, proposalId, support, v, r, s) => {
   // Setup contracts
+  console.log("a", [address, proposalId, support, v, r, s]);
   const { sigRelayer } = Web3Handler();
 
   // Check for undefined inputs
